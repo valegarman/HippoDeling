@@ -11,7 +11,8 @@ function [spikes] = getCSVCells(varargin)
 % basepath        -path to cvs files
 % cvsFiles        -CSVs files list (cell{})
 % saveMat         -logical (default=true) to save in buzcode format
-% forceReload    -logical (default=false) to force loading from
+% forceReload     -logical (default=false) to force loading from
+% cellsInCSV      -number of cells simulated in each CSV file (example, [800, 200])
 %
 % OUTPUTS
 %
@@ -26,6 +27,7 @@ function [spikes] = getCSVCells(varargin)
 %
 %  HISTORY:
 %  10/2019  Manu Valero
+%  Include 
 
 %% Parse options
 p = inputParser;
@@ -33,6 +35,7 @@ addParameter(p,'basepath',pwd,@isstr);
 addParameter(p,'cvsFiles',[],@iscell);
 addParameter(p,'saveMat',true,@islogical)
 addParameter(p,'forceReload',false,@islogical);
+addParameter(p,'cellsInCSV',false,@isnumeric);
 
 parse(p,varargin{:});
 
@@ -42,6 +45,8 @@ csvFiles = p.Results.cvsFiles;
 sessionName = strsplit(pwd,filesep);
 sessionName = sessionName{end};
 forceReload = p.Results.forceReload;
+cellsInCSV = p.Results.cellsInCSV;
+
 if exist([basepath filesep sessionName '.spikes.cellinfo.mat'],'file') && forceReload == false
     load([basepath filesep sessionName '.spikes.cellinfo.mat']);
 else
@@ -58,18 +63,25 @@ else
             ident{ii} = temp{1}(end);
         end
     end
+    
+    if isempty(cellsInCSV)
+        for ii = 1:size(csvFiles,2)
+            fileSpikes = readmatrix(csvFiles{ii});
+            cellsInCSV(ii) = max(unique(fileSpikes(1,:))) + 1;
+        end
+    end
 
     % get cells
     disp('Loading data...');
     kk = 1;
-    for ii = 1:size(csvFiles,2)
+    for ii = 1:length(cellsInCSV)
         fprintf(' ** file %3.i of %3.i  \n', ii, size(csvFiles,2));
         fileSpikes = readmatrix(csvFiles{ii});
-        filesUID = unique(fileSpikes(1,:));
-        for jj = 1:numel(filesUID)
-            spikes.times{kk}= fileSpikes(2,find(fileSpikes(1,:) == filesUID(jj)))'/1000; % in seconds
+        for jj = 1:cellsInCSV(ii)
+            spikes.times{kk}= fileSpikes(2,find(fileSpikes(1,:) == jj))'/1000; % in seconds
             spikes.UID(kk) = kk;
             spikes.subgroup(kk) = ii;
+            spikes.shankID(kk) = 1;
             kk = kk + 1;
         end
     end

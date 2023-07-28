@@ -9,14 +9,13 @@ all_simulations = dir;
 
 simulations_results = [];
 parfor ii = 3:length(all_simulations)
-    
     cd([all_simulations(ii).folder filesep all_simulations(ii).name])
     spikes = getCSVCells('cvsFiles',{'spk_E.csv', 'spk_I.csv'}, 'cellsInCSV', [800, 200]); % load simulation
     
     features = readmatrix('features.csv');% load features
     session = getSession_simulation(features, spikes, padding_opotogenetic_pulse);
     
-    uLEDPulses = getuLEDPulses_simulation(session)
+    uLEDPulses = getuLEDPulses_simulation(session);
     
     sessionName = strsplit(pwd,filesep);
     sessionName = sessionName{end};
@@ -29,7 +28,6 @@ parfor ii = 3:length(all_simulations)
     simulations_results(ii).uLEDPulses = uLEDPulses;
     simulations_results(ii).session = session;
     simulations_results(ii).spikes = spikes;
-
 end
 
 

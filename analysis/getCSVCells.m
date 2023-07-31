@@ -48,6 +48,7 @@ forceReload = p.Results.forceReload;
 cellsInCSV = p.Results.cellsInCSV;
 
 if exist([basepath filesep sessionName '.spikes.cellinfo.mat'],'file') && forceReload == false
+    disp('Loading file...');
     load([basepath filesep sessionName '.spikes.cellinfo.mat']);
 else
     pwdNow = pwd;

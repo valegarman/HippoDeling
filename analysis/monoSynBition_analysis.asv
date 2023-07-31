@@ -47,18 +47,14 @@ for ii = 1:length(all_simulations)
         simulations_results.rate_inInterval(ii) = mean(uLEDResponses_interval.in_interval.rateDuringPulse(probed_cells));
         simulations_results.rate_outInterval(ii) = mean(uLEDResponses_interval.out_interval.rateDuringPulse(probed_cells));
 
-        simulations_results.rateZ_inInterval(ii) = mean(uLEDResponses_interval.in_interval.rateZDuringPulse(probed_cells));
-        simulations_results.rateZ_outInterval(ii) = mean(uLEDResponses_interval.out_interval.rateZDuringPulse(probed_cells));
-
         simulations_results.optogenetic_pulse_amplitude(ii) = session.optogenetic_pulse_amplitude;
         simulations_results.GABA_conductance(ii) = session.GABA_conductance;
     end
 end
-% z = ((simulations_results.rate_outInterval - simulations_results.rate_inInterval)./(simulations_results.rate_outInterval + simulations_results.rate_inInterval))';
-z = ((simulations_results.rate_outInterval - simulations_results.rate_inInterval))';
+z = ((simulations_results.rate_outInterval - simulations_results.rate_inInterval)/)';
 x = simulations_results.optogenetic_pulse_amplitude';
 y = simulations_results.GABA_conductance';
-mdl = scatteredInterpolant(x,  y, z);
+mdl = scatteredInterpolant(x,  y, z');
 [xg, yg] = meshgrid(unique(x), unique(y));
 zg = mdl(xg, yg);
 sup = surf(xg,yg,zg);
